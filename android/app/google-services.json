@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "959043044643",
+    "project_id": "soundapp-ongz0057",
+    "storage_bucket": "soundapp-ongz0057.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:959043044643:android:593cb493da6d8d06683896",
+        "android_client_info": {
+          "package_name": "com.ongz0057.flutter_soundapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "959043044643-257p56tk460c43iknv1gce1vo36036kg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAo9TX2mceGyGVkTnPtYHRdQWUqhZKMH58"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "959043044643-257p56tk460c43iknv1gce1vo36036kg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
