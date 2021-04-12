@@ -16,6 +16,33 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   bool showSpinner = false;
   String email;
   String password;
+  String password2;
+
+  Future<void> _showMyDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Error'),
+          content: Text("Passwords do not match!"),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Ok'),
+              style: TextButton.styleFrom(
+                primary: Colors.white,
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+          elevation: 24.0,
+          backgroundColor: Colors.blueGrey,
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,16 +77,28 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     hintText: 'Enter your password'),
               ),
               SizedBox(
+                height: 8.0,
+              ),
+              TextField(
+                obscureText: true,
+                textAlign: TextAlign.center,
+                onChanged: (value) {
+                  password2 = value;
+                },
+                decoration:
+                    kTextFieldDecoration.copyWith(hintText: 'Confirm password'),
+              ),
+              SizedBox(
                 height: 24.0,
               ),
               RoundedButton(
                 title: 'Register',
                 colour: Colors.blueAccent,
                 onPressed: () async {
-                  setState(() {
-                    showSpinner = true;
-                  });
-                  try {
+                  if (password == password2) {
+                    setState(() {
+                      showSpinner = true;
+                    });
                     final newUser = await _auth.createUserWithEmailAndPassword(
                         email: email, password: password);
                     if (newUser != null) {
@@ -72,8 +111,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     setState(() {
                       showSpinner = false;
                     });
-                  } catch (e) {
-                    print(e);
+                  } else {
+                    _showMyDialog();
                   }
                 },
               ),

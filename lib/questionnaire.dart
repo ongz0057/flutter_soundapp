@@ -1,21 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_soundapp/feature_buttons_view.dart';
 import 'constants.dart';
-import 'iconContent.dart';
-import 'ReusableCard.dart';
-import 'roundIconBtn.dart';
 import 'bottomBtn.dart';
-import 'takeImage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'QuestionCard.dart';
 import 'questionContent.dart';
-import 'Demographic.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'Summary.dart';
+import 'package:provider/provider.dart';
 
 final _firestore = FirebaseFirestore.instance;
 User loggedInUser;
 
 class Questionnaire extends StatefulWidget {
+  final String docID;
+  final bool isRecording;
+  // final MyCallback onRecordStatus;
+  // final void Function(bool) onRecordStatus;
+  // final VoidCallback onRecordStatus;
+  Questionnaire({Key key, @required this.docID, this.isRecording})
+      : super(key: key);
   @override
   _QuestionnaireState createState() => _QuestionnaireState();
 }
@@ -106,9 +110,34 @@ class _QuestionnaireState extends State<Questionnaire> {
     }
   }
 
+  Future<void> _showMyDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Please wait!'),
+          content: Text("Audio recording is not complete."),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Ok'),
+              style: TextButton.styleFrom(
+                primary: Colors.white,
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+          elevation: 24.0,
+          backgroundColor: Colors.blueGrey,
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Scaffold(
       appBar: AppBar(
         title: Text('Questionnaire'),
@@ -118,8 +147,10 @@ class _QuestionnaireState extends State<Questionnaire> {
           Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: <
               Widget>[
             Text(
-                'To what extend do you presently hear the following four types of sounds?\n\n'),
-            Text('Traffic noise(e.g., cars, buses, trains, air planes)'),
+                'To what extend do you presently hear the following four types of sounds?\n\n',
+                style: questions),
+            Text('Traffic noise(e.g., cars, buses, trains, air planes)',
+                style: questions),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -201,7 +232,8 @@ class _QuestionnaireState extends State<Questionnaire> {
               ],
             ),
             Text(
-                'Other noise (e.g., sirens, construction, industry, loading of goods)'),
+                'Other noise (e.g., sirens, construction, industry, loading of goods)',
+                style: questions),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -283,7 +315,8 @@ class _QuestionnaireState extends State<Questionnaire> {
               ],
             ),
             Text(
-                'Sounds from human beings (e.g., conversation, laughter, children at play, footsteps)'),
+                'Sounds from human beings (e.g., conversation, laughter, children at play, footsteps)',
+                style: questions),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -365,7 +398,8 @@ class _QuestionnaireState extends State<Questionnaire> {
               ],
             ),
             Text(
-                'Natural sounds (e.g., singing birds, flowing water, wind in vegetation)'),
+                'Natural sounds (e.g., singing birds, flowing water, wind in vegetation)',
+                style: questions),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -447,8 +481,9 @@ class _QuestionnaireState extends State<Questionnaire> {
               ],
             ),
             Text(
-                'For each of the 8 scales below, to what extend do you agree or disagree that the present surrounding sound environment is?\n\n'),
-            Text('-Pleasant'),
+                '\nFor each of the 8 scales below, to what extend do you agree or disagree that the present surrounding sound environment is?\n\n',
+                style: questions),
+            Text('-Pleasant', style: questions),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -529,7 +564,7 @@ class _QuestionnaireState extends State<Questionnaire> {
                 ),
               ],
             ),
-            Text('-Chaotic'),
+            Text('-Chaotic', style: questions),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -610,7 +645,7 @@ class _QuestionnaireState extends State<Questionnaire> {
                 ),
               ],
             ),
-            Text('-Vibrant'),
+            Text('-Vibrant', style: questions),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -691,7 +726,7 @@ class _QuestionnaireState extends State<Questionnaire> {
                 ),
               ],
             ),
-            Text('-Uneventful'),
+            Text('-Uneventful', style: questions),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -772,7 +807,7 @@ class _QuestionnaireState extends State<Questionnaire> {
                 ),
               ],
             ),
-            Text('-Calm'),
+            Text('-Calm', style: questions),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -853,7 +888,7 @@ class _QuestionnaireState extends State<Questionnaire> {
                 ),
               ],
             ),
-            Text('-Annoying'),
+            Text('-Annoying', style: questions),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -934,7 +969,7 @@ class _QuestionnaireState extends State<Questionnaire> {
                 ),
               ],
             ),
-            Text('-Eventful'),
+            Text('-Eventful', style: questions),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -1015,7 +1050,7 @@ class _QuestionnaireState extends State<Questionnaire> {
                 ),
               ],
             ),
-            Text('-Monotonous'),
+            Text('-Monotonous', style: questions),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -1097,7 +1132,8 @@ class _QuestionnaireState extends State<Questionnaire> {
               ],
             ),
             Text(
-                'Overall, how would you describe the present surrounding sound environment?'),
+                '\nOverall, how would you describe the present surrounding sound environment?\n',
+                style: questions),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -1179,7 +1215,8 @@ class _QuestionnaireState extends State<Questionnaire> {
               ],
             ),
             Text(
-                'Overall, to what extent is the present surrounding environment appropriate to the present place?'),
+                '\nOverall, to what extent is the present surrounding environment appropriate to the present place?\n',
+                style: questions),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -1263,28 +1300,39 @@ class _QuestionnaireState extends State<Questionnaire> {
             BottomButton(
               buttonTitle: 'Submit',
               onTap: () {
-                _firestore.collection('userdata').doc(loggedInUser.uid).update({
-                  '1a': option1aSelected,
-                  '1b': option1bSelected,
-                  '1c': option1cSelected,
-                  '1d': option1dSelected,
-                  '2a': option2aSelected,
-                  '2b': option2bSelected,
-                  '2c': option2cSelected,
-                  '2d': option2dSelected,
-                  '2e': option2eSelected,
-                  '2f': option2fSelected,
-                  '2g': option2gSelected,
-                  '2h': option2hSelected,
-                  '3': option3Selected,
-                  '4': option4Selected,
-                });
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => DemoPage(),
-                  ),
-                );
+                if (Provider.of<UpdateRecording>(context, listen: false)
+                        .recordingStatus ==
+                    false) {
+                  _firestore
+                      .collection('userdata')
+                      .doc(loggedInUser.uid)
+                      .collection('subcollection')
+                      .doc(widget.docID)
+                      .update({
+                    '1a': option1aSelected,
+                    '1b': option1bSelected,
+                    '1c': option1cSelected,
+                    '1d': option1dSelected,
+                    '2a': option2aSelected,
+                    '2b': option2bSelected,
+                    '2c': option2cSelected,
+                    '2d': option2dSelected,
+                    '2e': option2eSelected,
+                    '2f': option2fSelected,
+                    '2g': option2gSelected,
+                    '2h': option2hSelected,
+                    '3': option3Selected,
+                    '4': option4Selected,
+                  });
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Summary(docID: widget.docID),
+                    ),
+                  );
+                } else {
+                  _showMyDialog();
+                }
               },
             ),
           ]),

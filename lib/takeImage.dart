@@ -1,23 +1,22 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_soundapp/constants.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'bottomBtn.dart';
-import 'takeAudio.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path/path.dart';
 import 'home_view.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'demographic.dart';
 
 String _uploadedImageURL;
 final _firestore = FirebaseFirestore.instance;
 User loggedInUser;
 
 class TakeImage extends StatefulWidget {
-  // TakeImage({this.docID});
-  // final String docID;
+  final String docID;
+  TakeImage({Key key, @required this.docID}) : super(key: key);
 
   @override
   _TakeImageState createState() => _TakeImageState();
@@ -61,15 +60,13 @@ class _TakeImageState extends State<TakeImage> {
     TaskSnapshot taskSnapshot = await uploadTask;
 
     firebaseStorageRef.getDownloadURL().then((imageURL) async {
-      CollectionReference imageRef =
-          FirebaseFirestore.instance.collection('userdata');
-      // .doc(loggedInUser.uid)
-      // .collection('subcollection');
+      CollectionReference imageRef = FirebaseFirestore.instance
+          .collection('userdata')
+          .doc(loggedInUser.uid)
+          .collection('subcollection');
       _uploadedImageURL = imageURL;
       if (_uploadedImageURL != null) {
-        await imageRef.doc(loggedInUser.uid).update({
-          // await imageRef.doc(widget.docID).update({
-
+        await imageRef.doc(widget.docID).update({
           'Image': _uploadedImageURL,
         });
       }
@@ -87,7 +84,8 @@ class _TakeImageState extends State<TakeImage> {
           Expanded(
             child: Center(
                 child: _image == null
-                    ? Text("Image is not loaded")
+                    ? Text("Capture an image of your surroundings",
+                        style: kLabelTextStyle)
                     : Image.file(_image)),
           ),
           FloatingActionButton(
@@ -101,36 +99,14 @@ class _TakeImageState extends State<TakeImage> {
               buttonTitle: 'Next',
               onTap: () {
                 uploadPic(context);
-                // print(widget.docID);
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => HomeView(),
+                    builder: (context) => HomeView(docID: widget.docID),
                   ),
                 );
               },
             ),
-            // child: BottomButton(
-            //   buttonTitle: 'Next',
-            //   onTap: () {
-            //     if (_image == null) {
-            //       Navigator.push(
-            //         context,
-            //         MaterialPageRoute(
-            //           builder: (context) => TakeImage(),
-            //         ),
-            //       );
-            //     } else {
-            //       Navigator.push(
-            //         context,
-            //         MaterialPageRoute(
-            //           builder: (context) =>
-            //               RecorderHomeView(title: 'Voice Recording'),
-            //         ),
-            //       );
-            //     }
-            //   },
-            // ),
           ),
         ],
       ),

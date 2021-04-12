@@ -1,6 +1,5 @@
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'cloud_record_list_view.dart';
 import 'feature_buttons_view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -9,6 +8,8 @@ final _firestore = FirebaseFirestore.instance;
 User loggedInUser;
 
 class HomeView extends StatefulWidget {
+  final String docID;
+  HomeView({Key key, @required this.docID}) : super(key: key);
   @override
   _HomeViewState createState() => _HomeViewState();
 }
@@ -48,6 +49,7 @@ class _HomeViewState extends State<HomeView> {
               flex: 2,
               child: FeatureButtonsView(
                 onUploadComplete: _onUploadComplete,
+                docID: widget.docID,
               ),
             ),
           ],

@@ -1,22 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'constants.dart';
-import 'iconContent.dart';
 import 'ReusableCard.dart';
 import 'roundIconBtn.dart';
 import 'bottomBtn.dart';
 import 'takeImage.dart';
-// import 'database_helper.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:device_info/device_info.dart';
-
-enum Gender {
-  male,
-  female,
-}
-// String docID;
 
 final _firestore = FirebaseFirestore.instance;
 User loggedInUser;
@@ -28,15 +20,20 @@ class DemoPage extends StatefulWidget {
 
 class _DemoPageState extends State<DemoPage> {
   final _auth = FirebaseAuth.instance;
-  // final _firestore = FirebaseFirestore.instance;
-  Gender selectedGender;
   int height = 180;
-  int weight = 60;
-  int age = 20;
-  String genderSelected;
+  int age = 30;
+  int maxAge = 100;
+  int minAge = 10;
   Position position;
   String phoneModel;
-  // var concatenate = StringBuffer();
+  String docID = 'abc';
+
+  List<String> residency = ['SG', 'PR'];
+  int residencyNo = 0;
+  List<String> race = ['Chinese', 'Malay', 'Indian', 'Others'];
+  int raceNo = 0;
+  List<String> gender = ['Male', 'Female'];
+  int genderNo = 0;
 
   @override
   void initState() {
@@ -44,9 +41,9 @@ class _DemoPageState extends State<DemoPage> {
     getCurrentUser();
     getLocation();
     getDeviceInfo();
-    setState(() {
-      selectedGender = Gender.male;
-    });
+    // setState(() {
+    //   selectedGender = Gender.male;
+    // });
   }
 
   void getCurrentUser() async {
@@ -62,24 +59,16 @@ class _DemoPageState extends State<DemoPage> {
 
   void getLocation() async {
     position = await Geolocator.getCurrentPosition(
-      // forceAndroidLocationManager: true,
-      //set true for emulator, dont set for device
       desiredAccuracy: LocationAccuracy.best,
     );
   }
+  // forceAndroidLocationManager: true,
+  //set true for emulator, dont set for device
 
   void getDeviceInfo() async {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
     phoneModel = androidInfo.brand + androidInfo.model;
-
-    // List<String> textWidgets = [];
-    // textWidgets.add('androidID: ${androidInfo.androidId}');
-    // textWidgets.add('androidBrand: ${androidInfo.brand}');
-    // phoneModel = textWidgets.join('');
-    // textWidgets.forEach((item) {
-    //   concatenate.write(item);
-    // });
   }
 
   @override
@@ -97,35 +86,91 @@ class _DemoPageState extends State<DemoPage> {
               children: <Widget>[
                 Expanded(
                   child: ReusableCard(
-                    onPress: () {
-                      setState(() {
-                        selectedGender = Gender.male;
-                        genderSelected = 'Male';
-                      });
-                    },
-                    colour: selectedGender == Gender.male
-                        ? kActiveCardColour
-                        : kInactiveCardColour,
-                    cardChild: IconContent(
-                      icon: FontAwesomeIcons.mars,
-                      label: 'MALE',
+                    colour: kActiveCardColour,
+                    cardChild: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          'GENDER',
+                          style: kLabelTextStyle,
+                        ),
+                        Text(
+                          gender[genderNo],
+                          style: kNumberTextStyle,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            RoundIconButton(
+                                icon: FontAwesomeIcons.chevronLeft,
+                                onPressed: () {
+                                  if (genderNo != 0) {
+                                    setState(() {
+                                      genderNo--;
+                                    });
+                                  }
+                                }),
+                            SizedBox(
+                              width: 10.0,
+                            ),
+                            RoundIconButton(
+                              icon: FontAwesomeIcons.chevronRight,
+                              onPressed: () {
+                                if (genderNo < gender.length - 1) {
+                                  setState(() {
+                                    genderNo++;
+                                  });
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ),
                 Expanded(
                   child: ReusableCard(
-                    onPress: () {
-                      setState(() {
-                        selectedGender = Gender.female;
-                        genderSelected = 'Female';
-                      });
-                    },
-                    colour: selectedGender == Gender.female
-                        ? kActiveCardColour
-                        : kInactiveCardColour,
-                    cardChild: IconContent(
-                      icon: FontAwesomeIcons.venus,
-                      label: 'FEMALE',
+                    colour: kActiveCardColour,
+                    cardChild: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          'RACE',
+                          style: kLabelTextStyle,
+                        ),
+                        Text(
+                          race[raceNo],
+                          style: kNumberTextStyle,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            RoundIconButton(
+                                icon: FontAwesomeIcons.chevronLeft,
+                                onPressed: () {
+                                  if (raceNo != 0) {
+                                    setState(() {
+                                      raceNo--;
+                                    });
+                                  }
+                                }),
+                            SizedBox(
+                              width: 10.0,
+                            ),
+                            RoundIconButton(
+                              icon: FontAwesomeIcons.chevronRight,
+                              onPressed: () {
+                                if (raceNo < race.length - 1) {
+                                  setState(() {
+                                    raceNo++;
+                                  });
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -192,32 +237,36 @@ class _DemoPageState extends State<DemoPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
                           Text(
-                            'WEIGHT',
+                            'RESIDENCY',
                             style: kLabelTextStyle,
                           ),
                           Text(
-                            weight.toString(),
+                            residency[residencyNo],
                             style: kNumberTextStyle,
                           ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
                               RoundIconButton(
-                                  icon: FontAwesomeIcons.minus,
+                                  icon: FontAwesomeIcons.chevronLeft,
                                   onPressed: () {
-                                    setState(() {
-                                      weight--;
-                                    });
+                                    if (residencyNo != 0) {
+                                      setState(() {
+                                        residencyNo--;
+                                      });
+                                    }
                                   }),
                               SizedBox(
                                 width: 10.0,
                               ),
                               RoundIconButton(
-                                icon: FontAwesomeIcons.plus,
+                                icon: FontAwesomeIcons.chevronRight,
                                 onPressed: () {
-                                  setState(() {
-                                    weight++;
-                                  });
+                                  if (residencyNo < residency.length - 1) {
+                                    setState(() {
+                                      residencyNo++;
+                                    });
+                                  }
                                 },
                               ),
                             ],
@@ -246,11 +295,13 @@ class _DemoPageState extends State<DemoPage> {
                               RoundIconButton(
                                 icon: FontAwesomeIcons.minus,
                                 onPressed: () {
-                                  setState(
-                                    () {
-                                      age--;
-                                    },
-                                  );
+                                  if (age > minAge) {
+                                    setState(
+                                      () {
+                                        age--;
+                                      },
+                                    );
+                                  }
                                 },
                               ),
                               SizedBox(
@@ -259,9 +310,11 @@ class _DemoPageState extends State<DemoPage> {
                               RoundIconButton(
                                   icon: FontAwesomeIcons.plus,
                                   onPressed: () {
-                                    setState(() {
-                                      age++;
-                                    });
+                                    if (age < maxAge) {
+                                      setState(() {
+                                        age++;
+                                      });
+                                    }
                                   })
                             ],
                           )
@@ -274,27 +327,30 @@ class _DemoPageState extends State<DemoPage> {
             ),
             BottomButton(
               buttonTitle: 'Next',
-              onTap: () {
-                _firestore.collection('userdata').doc(loggedInUser.uid)
-                    // .collection('subcollection')
-                    // .doc()
-                    // .add({
-                    .set({
-                  'Gender': genderSelected,
+              onTap: () async {
+                await _firestore
+                    .collection('userdata')
+                    .doc(loggedInUser.uid)
+                    .collection('subcollection')
+                    .add({
+                  'Gender': gender[genderNo],
                   'Height': height,
-                  'Weight': weight,
+                  'Residency': residency[residencyNo],
+                  'Race': race[raceNo],
                   'Age': age,
                   'Location': GeoPoint(position.latitude, position.longitude),
                   'phoneModel': phoneModel,
-                  // }).then((value) {
-                  // print(value.id);
-                  // docID = value.id;
+                }).then((value) {
+                  print(value.id);
+                  setState(() {
+                    docID = value.id;
+                  });
                 });
+                print(docID);
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => TakeImage(),
-                    // builder: (context) => TakeImage(docID: docID),
+                    builder: (context) => TakeImage(docID: docID),
                   ),
                 );
               },

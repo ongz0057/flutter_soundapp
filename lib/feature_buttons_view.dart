@@ -4,21 +4,39 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_audio_recorder/flutter_audio_recorder.dart';
+import 'package:flutter_soundapp/ReusableCard.dart';
 import 'package:path_provider/path_provider.dart';
 import 'questionnaire.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path/path.dart' as Path;
+import 'constants.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'iconContent.dart';
+import 'package:provider/provider.dart';
 
 String _uploadedAudioURL;
 final _firestore = FirebaseFirestore.instance;
 User loggedInUser;
+String maxDB;
+String meanDB;
+
+class UpdateRecording extends ChangeNotifier {
+  bool recordingStatus = true;
+  // widget.isRecording get => _recordingStatus;
+  toggle() {
+    recordingStatus = !recordingStatus;
+    notifyListeners();
+  }
+}
 
 class FeatureButtonsView extends StatefulWidget {
   final Function onUploadComplete;
+  final String docID;
   const FeatureButtonsView({
     Key key,
     @required this.onUploadComplete,
+    this.docID,
   }) : super(key: key);
   @override
   _FeatureButtonsViewState createState() => _FeatureButtonsViewState();
@@ -70,7 +88,7 @@ class _FeatureButtonsViewState extends State<FeatureButtonsView> {
                     Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: LinearProgressIndicator()),
-                    Text('Uplaoding to Firebase'),
+                    Text('Uploading to Firebase'),
                   ],
                 )
               : Row(
@@ -91,30 +109,29 @@ class _FeatureButtonsViewState extends State<FeatureButtonsView> {
                     ),
                   ],
                 )
-          : IconButton(
-              icon: _isRecording
-                  ? Icon(Icons.pause)
-                  : Icon(Icons.fiber_manual_record),
-              onPressed: _onRecordButtonPressed,
+          : Expanded(
+              child: ReusableCard(
+                onPress: () {
+                  _onRecordButtonPressed();
+                },
+                colour: kInactiveCardColour,
+                cardChild: IconContent(
+                  icon: FontAwesomeIcons.microphone,
+                  label: 'Tap to record a 3-minute audio of your surroundings',
+                ),
+              ),
             ),
+      //   IconButton(
+      //           icon: _isRecording
+      //               ? Icon(Icons.pause)
+      //               : Icon(Icons.fiber_manual_record),
+      //           onPressed: _onRecordButtonPressed,
+      //         ),
     );
   }
 
   Future<void> _onFileUploadButtonPressed() async {
     FirebaseStorage firebaseStorage = FirebaseStorage.instance;
-
-    // Reference firebaseStorageRef =
-    // FirebaseStorage.instance.ref().child('Image/$fileName');
-    // firebaseStorageRef.getDownloadURL().then((imageURL) async {
-    //   CollectionReference imageRef =
-    //   FirebaseFirestore.instance.collection('userdata');
-    //   _uploadedImageURL = imageURL;
-    //   if (_uploadedImageURL != null) {
-    //     await imageRef.doc(loggedInUser.uid).update({
-    //       'Image': _uploadedImageURL,
-    //     });
-    //   }
-    // })
 
     setState(() {
       _isUploading = true;
@@ -127,12 +144,16 @@ class _FeatureButtonsViewState extends State<FeatureButtonsView> {
       await firebaseStorageRef.putFile(File(_filePath));
 
       firebaseStorageRef.getDownloadURL().then((audioURL) async {
-        CollectionReference audioRef =
-            FirebaseFirestore.instance.collection('userdata');
+        CollectionReference audioRef = FirebaseFirestore.instance
+            .collection('userdata')
+            .doc(loggedInUser.uid)
+            .collection('subcollection');
         _uploadedAudioURL = audioURL;
         if (_uploadedAudioURL != null) {
-          await audioRef.doc(loggedInUser.uid).update({
+          await audioRef.doc(widget.docID).update({
             'Audio': _uploadedAudioURL,
+            'SPL': _audioRecorder.recording.metering.averagePower.toString(),
+            // 'SPL': meanDB,
           });
         }
       });
@@ -166,20 +187,24 @@ class _FeatureButtonsViewState extends State<FeatureButtonsView> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => Questionnaire(),
+          builder: (context) => Questionnaire(
+            docID: widget.docID,
+            isRecording: _isRecording,
+          ),
         ),
       );
 
       await _startRecording();
-      Timer(Duration(seconds: 3), () async {
+
+      Timer(Duration(seconds: 181), () async {
         await _audioRecorder.stop();
+        Provider.of<UpdateRecording>(context, listen: false).toggle();
         _isRecording = false;
         _isRecorded = true;
         setState(() {});
         _onFileUploadButtonPressed();
       });
     }
-    // setState(() {});
   }
 
   void _onPlayButtonPressed() {
@@ -212,6 +237,9 @@ class _FeatureButtonsViewState extends State<FeatureButtonsView> {
           FlutterAudioRecorder(filepath, audioFormat: AudioFormat.AAC);
       await _audioRecorder.initialized;
       _audioRecorder.start();
+
+      print('starting stream');
+      // await start();
       _filePath = filepath;
       setState(() {});
     } else {
