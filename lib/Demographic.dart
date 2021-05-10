@@ -9,6 +9,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:device_info/device_info.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 final _firestore = FirebaseFirestore.instance;
 User loggedInUser;
@@ -27,6 +29,10 @@ class _DemoPageState extends State<DemoPage> {
   Position position;
   String phoneModel;
   String docID = 'abc';
+  String stringWeather;
+  var temp;
+  var description;
+  var windSpeed;
 
   List<String> residency = ['SG', 'PR'];
   int residencyNo = 0;
@@ -41,6 +47,7 @@ class _DemoPageState extends State<DemoPage> {
     getCurrentUser();
     getLocation();
     getDeviceInfo();
+    // this.getWeather();
     // setState(() {
     //   selectedGender = Gender.male;
     // });
@@ -61,6 +68,7 @@ class _DemoPageState extends State<DemoPage> {
     position = await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.best,
     );
+    this.getWeather();
   }
   // forceAndroidLocationManager: true,
   //set true for emulator, dont set for device
@@ -69,6 +77,19 @@ class _DemoPageState extends State<DemoPage> {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
     phoneModel = androidInfo.brand + androidInfo.model;
+  }
+
+  Future getWeather() async {
+    http.Response response = await http.get(
+        "http://api.openweathermap.org/data/2.5/weather?lat=${position.latitude}&lon=${position.longitude}&appid=95fbb4ad16f2d1d3d2011dbb85434407");
+    var results = jsonDecode(response.body);
+    setState(() {
+      this.temp = results['main']['temp'];
+      this.description = results['weather'][0]['description'];
+      this.windSpeed = results['windSpeed']['speed'];
+    });
+    // stringWeather =
+    //     temp.toString() + description.toString() + windSpeed.toString();
   }
 
   @override
@@ -340,8 +361,12 @@ class _DemoPageState extends State<DemoPage> {
                   'Age': age,
                   'Location': GeoPoint(position.latitude, position.longitude),
                   'phoneModel': phoneModel,
+                  'Weather': temp.toString() +
+                      description.toString() +
+                      windSpeed.toString(),
                 }).then((value) {
                   print(value.id);
+                  print(temp.toString());
                   setState(() {
                     docID = value.id;
                   });

@@ -40,6 +40,8 @@ dependencies:
   noise_meter: ^2.0.0
   flutter_radar_chart: ^0.1.6
   provider: ^4.3.3
+  circular_countdown_timer: ^0.1.0
+  http: ^0.12.2
 
 
 

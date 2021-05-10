@@ -16,6 +16,34 @@ class _LoginScreenState extends State<LoginScreen> {
   bool showSpinner = false;
   String email;
   String password;
+  bool emailValid;
+  bool passwordValid;
+
+  Future<void> _showMyDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Error'),
+          content: Text("Please fill in both username and password"),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Ok'),
+              style: TextButton.styleFrom(
+                primary: Colors.white,
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+          elevation: 24.0,
+          backgroundColor: Colors.blueGrey,
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +61,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 textAlign: TextAlign.center,
                 onChanged: (value) {
                   email = value;
+                  emailValid = RegExp(
+                          r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                      .hasMatch(email);
                 },
                 decoration:
                     kTextFieldDecoration.copyWith(hintText: 'Enter your email'),
@@ -45,6 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 textAlign: TextAlign.center,
                 onChanged: (value) {
                   password = value;
+                  passwordValid = RegExp(r"^.{6,}$").hasMatch(email);
                 },
                 decoration: kTextFieldDecoration.copyWith(
                     hintText: 'Enter your password'),
@@ -56,24 +88,24 @@ class _LoginScreenState extends State<LoginScreen> {
                 title: 'Log In',
                 colour: Colors.lightBlueAccent,
                 onPressed: () async {
-                  setState(() {
-                    showSpinner = true;
-                  });
                   try {
                     final user = await _auth.signInWithEmailAndPassword(
                         email: email, password: password);
-                    if (user != null) {
+                    if (email != null && password != null) {
+                      setState(() {
+                        showSpinner = true;
+                      });
                       Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => DemoPage(),
                           ));
+                      setState(() {
+                        showSpinner = false;
+                      });
                     }
-                    setState(() {
-                      showSpinner = false;
-                    });
                   } catch (e) {
-                    print(e);
+                    _showMyDialog();
                   }
                 },
               ),

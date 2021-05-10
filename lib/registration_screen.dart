@@ -25,7 +25,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Error'),
-          content: Text("Passwords do not match!"),
+          content: Text(
+              "Passwords do not match! (Password length must be at least 6 characters)"),
           actions: <Widget>[
             TextButton(
               child: Text('Ok'),
@@ -95,7 +96,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 title: 'Register',
                 colour: Colors.blueAccent,
                 onPressed: () async {
-                  if (password == password2) {
+                  if (password.length > 5 && password == password2) {
                     setState(() {
                       showSpinner = true;
                     });

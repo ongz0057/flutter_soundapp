@@ -8,6 +8,7 @@ import 'questionContent.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'Summary.dart';
 import 'package:provider/provider.dart';
+import 'package:circular_countdown_timer/circular_countdown_timer.dart';
 
 final _firestore = FirebaseFirestore.instance;
 User loggedInUser;
@@ -59,6 +60,7 @@ enum option4 {
 class _QuestionnaireState extends State<Questionnaire> {
   final _firestore = FirebaseFirestore.instance;
   final _auth = FirebaseAuth.instance;
+  CountDownController _controller = CountDownController();
 
   option1 selectedOption1a;
   String option1aSelected;
@@ -1264,39 +1266,55 @@ class _QuestionnaireState extends State<Questionnaire> {
                 ),
               ],
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                QuestionCard(
-                  onPress: () {
-                    setState(() {
-                      selectedOption4 = option4.Very;
-                      option4Selected = 'Very';
-                    });
-                  },
-                  colour: selectedOption4 == option4.Very
-                      ? kActiveCardColour
-                      : kInactiveCardColour,
-                  cardChild: QuestionContent(
-                    label: 'Very',
+            Stack(
+                // fit: StackFit.expand,
+                children: <Widget>[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      QuestionCard(
+                        onPress: () {
+                          setState(() {
+                            selectedOption4 = option4.Very;
+                            option4Selected = 'Very';
+                          });
+                        },
+                        colour: selectedOption4 == option4.Very
+                            ? kActiveCardColour
+                            : kInactiveCardColour,
+                        cardChild: QuestionContent(
+                          label: 'Very',
+                        ),
+                      ),
+                      QuestionCard(
+                        onPress: () {
+                          setState(() {
+                            selectedOption4 = option4.Perfectly;
+                            option4Selected = 'Perfectly';
+                          });
+                        },
+                        colour: selectedOption4 == option4.Perfectly
+                            ? kActiveCardColour
+                            : kInactiveCardColour,
+                        cardChild: QuestionContent(
+                          label: 'Perfectly',
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                QuestionCard(
-                  onPress: () {
-                    setState(() {
-                      selectedOption4 = option4.Perfectly;
-                      option4Selected = 'Perfectly';
-                    });
-                  },
-                  colour: selectedOption4 == option4.Perfectly
-                      ? kActiveCardColour
-                      : kInactiveCardColour,
-                  cardChild: QuestionContent(
-                    label: 'Perfectly',
+                  Positioned(
+                    bottom: 0,
+                    right: 10,
+                    child: CircularCountDownTimer(
+                        width: MediaQuery.of(context).size.width / 6,
+                        height: MediaQuery.of(context).size.height / 6,
+                        duration: 180,
+                        fillColor: Colors.pink,
+                        ringColor: Colors.white,
+                        textStyle:
+                            TextStyle(fontSize: 10.0, color: Colors.white)),
                   ),
-                ),
-              ],
-            ),
+                ]),
             BottomButton(
               buttonTitle: 'Submit',
               onTap: () {

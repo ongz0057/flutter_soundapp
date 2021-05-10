@@ -152,7 +152,8 @@ class _FeatureButtonsViewState extends State<FeatureButtonsView> {
         if (_uploadedAudioURL != null) {
           await audioRef.doc(widget.docID).update({
             'Audio': _uploadedAudioURL,
-            'SPL': _audioRecorder.recording.metering.averagePower.toString(),
+            'soundPower':
+                _audioRecorder.recording.metering.averagePower.toString(),
             // 'SPL': meanDB,
           });
         }
